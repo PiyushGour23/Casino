@@ -1,4 +1,5 @@
 ﻿using Casino.Data;
+using Casino.IRepository;
 using Casino.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,21 +13,43 @@ namespace Casino.Controllers
     [ApiController]
     public class VaibhavController : ControllerBase
     {
+        private readonly IVaibhavRepository vaibhavRepository;
         private readonly RegisterDbContext _registerDbContext;
 
-        public VaibhavController(RegisterDbContext registerDbContext)
+        public VaibhavController(IVaibhavRepository vaibhavRepository, RegisterDbContext registerDbContext)
         {
+            this.vaibhavRepository = vaibhavRepository;
             _registerDbContext = registerDbContext;
         }
 
+
+
+        // Follows Controller Pattern
         [HttpPost]
-        public async Task<IActionResult> AddRegister(Register register)
+        public async Task<IActionResult> AddRegister(DTORegister dTORegister)
         {
             try
             {
-                await _registerDbContext.Registers.AddAsync(register);
-                await _registerDbContext.SaveChangesAsync();
-                return Ok(register);
+                //Map DTO to Domain Model
+                var dtoregister = new Register
+                {
+                    Name = dTORegister.Name,
+                    Email = dTORegister.Email,
+                    Pancard = dTORegister.Pancard,
+                };
+
+                
+                //Map DTO to Domain Model for the Angular Application
+
+                var response = new AngularDtoRegister
+                {
+                    Id = dtoregister.Id,
+                    Name = dtoregister.Name,
+                    Email = dtoregister.Email,
+                    Pancard = dtoregister.Pancard,
+                };
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -34,13 +57,14 @@ namespace Casino.Controllers
             }
         }
 
+        // Follows Repository Pattern
         [HttpGet]
         public async Task<IActionResult> GetRegister()
         {
             try
             {
-                //await _registerDbContext.Registers.ToListAsync();
-                return Ok(await _registerDbContext.Registers.ToListAsync());
+                var data = vaibhavRepository.MyRegister();
+                return Ok(data);
             }
             catch (Exception ex)
             {
