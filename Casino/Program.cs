@@ -7,7 +7,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers();       
+
+builder.Services.AddCors(p => p.AddPolicy("vaibhavpolicy", build =>
+{
+    build.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+}));
+
+builder.Services.AddCors(p => p.AddDefaultPolicy(build =>
+{
+    build.WithOrigins("https://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+}));
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTransient<IVaibhavRepository, VaibhavRepository>();
@@ -25,6 +36,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();
