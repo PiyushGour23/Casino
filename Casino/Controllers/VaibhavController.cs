@@ -4,6 +4,7 @@ using Casino.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using System.ComponentModel.DataAnnotations;
@@ -11,6 +12,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Casino.Controllers
 {
     [EnableCors]
+    [EnableRateLimiting("FixedWindow")]
     [Route("api/[controller]")]
     [ApiController]
     public class VaibhavController : ControllerBase
