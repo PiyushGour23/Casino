@@ -1,6 +1,8 @@
 ﻿using Casino.Data;
 using Casino.IRepository;
 using Casino.Models;
+using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +10,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 
 namespace Casino.Controllers
 {
@@ -15,6 +18,7 @@ namespace Casino.Controllers
     [EnableRateLimiting("FixedWindow")]
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class VaibhavController : ControllerBase
     {
         private readonly IVaibhavRepository vaibhavRepository;
@@ -126,5 +130,51 @@ namespace Casino.Controllers
             }
 
         }
+
+        [HttpGet("ExportToExcel")]
+        public async Task <IActionResult> ExportToExcel()
+        {
+            try
+            {
+                var mydata = GetRegisterData();
+                using (XLWorkbook wb = new XLWorkbook())
+                {
+                    wb.AddWorksheet(mydata, "My Sheet 1");
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        wb.SaveAs(ms);
+                        return File(ms.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ViabhavExcel.xlsx");
+                    }
+                }
+            } 
+            catch (Exception ex) 
+            {
+                throw;
+            }
+        }
+
+
+
+        [NonAction]
+        private DataTable GetRegisterData()
+        {
+            DataTable dt = new DataTable();
+            dt.TableName = "VaibhvTable";
+            dt.Columns.Add("id", typeof(int));
+            dt.Columns.Add("name", typeof(string));
+            dt.Columns.Add("email", typeof(string));
+            dt.Columns.Add("pancard", typeof(string));
+
+            var list = _registerDbContext.Registers.ToList();
+            if(list.Count > 0)
+            {
+                list.ForEach(Item =>
+                {
+                    dt.Rows.Add(Item.Id, Item.Name, Item.Email, Item.Pancard);
+                });
+            }
+            return dt;
+        }
+
     }
 }

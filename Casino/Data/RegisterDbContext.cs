@@ -12,5 +12,6 @@ namespace Casino.Data
         }
 
         public DbSet<Register> Registers { get; set; }
+        public DbSet<usercred> usercred { get; set; }
     }
 }
