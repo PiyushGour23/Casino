@@ -1,4 +1,5 @@
 using Casino.Data;
+using Casino.Helper;
 using Casino.IRepository;
 using Casino.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -35,6 +36,7 @@ builder.Services.AddRateLimiter(_ => _.AddFixedWindowLimiter(policyName: "FixedW
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTransient<IVaibhavRepository, VaibhavRepository>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "CasinoWebAPI", Version = "v1" });
@@ -76,7 +78,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddDbContext<RegisterDbContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("sqlserver")));
 
 var app = builder.Build();
